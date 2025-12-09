@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dotazník</title>
+  <script>
+    // Survey URLs
+    const EXP_URL = "https://www.survio.com/survey/d/J9H0D9Y4L5E9L7Z0M";
+    const CTRL_URL = "https://www.survio.com/survey/d/R8G6S5N5D9E5Z1K7K";
+
+    function setCookie(name, value, days) {
+      const d = new Date();
+      d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+      const expires = "expires=" + d.toUTCString();
+      const secure = location.protocol === "https:" ? "; Secure" : "";
+      const sameSite = "; SameSite=Lax";
+      document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/" + secure + sameSite;
+    }
+
+    function getCookie(name) {
+      const cname = name + "=";
+      const decoded = decodeURIComponent(document.cookie || "");
+      const parts = decoded.split(";");
+      for (let p of parts) {
+        let c = p.trim();
+        if (c.indexOf(cname) === 0) {
+          return c.substring(cname.length);
+        }
+      }
+      // fallback to localStorage if cookie is not available
+      try {
+        return localStorage.getItem(name) || "";
+      } catch (e) {
+        return "";
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", function () {
+      let group = getCookie("group");
+      if (!group) {
+        group = Math.random() < 0.5 ? "exp" : "ctrl";
+        setCookie("group", group, 30); // valid for 30 days
+        try { localStorage.setItem("group", group); } catch (e) {}
+      }
+
+      let target = group === "exp" ? EXP_URL : CTRL_URL;
+
+      // Optionally append group as a query parameter if the survey supports it:
+      // target += (target.includes('?') ? '&' : '?') + 'group=' + encodeURIComponent(group);
+
+      // Small delay to ensure storage is written before navigating.
+      setTimeout(function () {
+        // use replace to avoid leaving this page in history
+        location.replace(target);
+      }, 150);
+    });
+  </script>
+</head>
+<body>
+  <p>Přesměrování na dotazník…</p>
+
+  <noscript>
+    <p>Váš prohlížeč má vypnutý JavaScript. Pokud chcete pokračovat, klikněte na odpovídající odkaz:</p>
+    <ul>
+      <li><a href="https://www.survio.com/survey/d/J9H0D9Y4L5E9L7Z0M">Experimentální verze</a></li>
+      <li><a href="https://www.survio.com/survey/d/R8G6S5N5D9E5Z1K7K">Kontrolní verze</a></li>
+    </ul>
+  </noscript>
+</body>
+</html>
